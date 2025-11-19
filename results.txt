@@ -1,0 +1,25 @@
+
+> netzbremse-headless-speedtest@1.0.0 start
+> node index.js
+
+Starting speed test...
+
+Error fetching https://custom-t0.speed.cloudflare.com/__down?during=download&bytes=0: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__down?bytes=100000: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__down?during=upload&bytes=0: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__up?: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__down?during=download&bytes=0: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__down?bytes=10000000: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__down?during=upload&bytes=0: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__up?: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Error fetching https://custom-t0.speed.cloudflare.com/__down?bytes=0: TypeError: Cannot read properties of undefined (reading 'transferSize')
+Results:
+Download: 49 Mbps
+  Latency: 100 ms
+  Jitter: 29 ms
+Upload: 14 Mbps
+  Latency: 83 ms
+  Jitter: 41 ms
+Idle:
+  Latency: 71 ms
+  Jitter: 35 ms
