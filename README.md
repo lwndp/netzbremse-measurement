@@ -45,6 +45,7 @@ Install dependencies and start the script:
 
 ```bash
 npm install
+export NB_SPEEDTEST_ACCEPT_POLICY="true"
 npm start
 ```
 
