@@ -1,0 +1,6 @@
+services:
+  speedtest:
+    build: .
+    image: ghcr.io/akvorrat/netzbremse.de-measurement:latest
+    container_name: netzbremse-speedtest
+    restart: unless-stopped
