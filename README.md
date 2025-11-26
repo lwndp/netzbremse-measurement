@@ -31,7 +31,7 @@ docker compose logs -f
 
 Anonymized results are automatically submitted to our data collection service.
 
-We provide a prebuilt Docker image for x86_64 systems. To run on ARM devices (e.g., Raspberry Pi), you can clone this repository and build the image locally. 
+> **Note:** We currently provide a prebuilt Docker image for x86_64 systems. To run on ARM devices (e.g., Raspberry Pi), you can clone this repository and build the image on the device. 
 
 ## Run using Node.js (without Docker)
 
@@ -61,10 +61,10 @@ To run the script reliably in the background create a Systemd service or use as 
 | `NB_SPEEDTEST_URL` | `https://netzbremse.de/speed` | No |
 | `NB_SPEEDTEST_BROWSER_DATA_DIR` | `./tmp-browser-data` | No |
 
-## Warnings
+## Warning
 
 You should monitor your system or at least periodically check system metrics while running this script.
 
 The script launches a headless Chromium instance in the background. In some cases, orphaned browser processes may not be cleaned up properly, or the disk may fill up with leftover Chromium profile data.
 
-The author speaks from personal experience with similar scripts in the past.
+*The author speaks from personal experience with similar scripts in the past.*
