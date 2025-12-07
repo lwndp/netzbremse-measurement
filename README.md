@@ -4,13 +4,13 @@ Automated speedtest runner using Puppeteer to periodically test peering bottlene
 
 To learn more about the campaign go to our [website](https://netzbremse.de) and try the [speedtest](https://netzbremse.de/speed) in the browser.
 
-By running this test you are supporting our claim with anonymized real world measurements in accordance with the privacy policy. 
+By running this test you are supporting our claim with anonymized real world measurements in accordance with the privacy policy.
 
 ## Quick Start using Docker
 
 Download the [`docker-compose.yml`](https://raw.githubusercontent.com/AKVorrat/netzbremse-measurement/refs/heads/main/docker-compose.yml) file.
 
-Read our privacy policy on the [website](https://netzbremse.de/speed) (visible when starting the speedtest for the first time) and edit the `docker-compose.yml` file to accept the [Cloudflare terms](https://www.cloudflare.com/de-de/privacypolicy/). 
+Read our privacy policy on the [website](https://netzbremse.de/speed) (visible when starting the speedtest for the first time) and edit the `docker-compose.yml` file to accept the [Cloudflare terms](https://www.cloudflare.com/de-de/privacypolicy/).
 
 ```yml
 environment: 
@@ -31,7 +31,7 @@ docker compose logs -f
 
 Anonymized results are automatically submitted to our data collection service.
 
-> **Note:** We currently provide a prebuilt Docker image for x86_64 systems. To run on ARM devices (e.g., Raspberry Pi), you can clone this repository and build the image on the device. 
+> **Note:** We currently provide a prebuilt Docker image for x86_64 systems. To run on ARM devices (e.g., Raspberry Pi), you can clone this repository and build the image on the device.
 
 ## Run using Node.js (without Docker)
 
