@@ -64,8 +64,14 @@ To run the script reliably in the background create a Systemd service or use as 
 | `NB_SPEEDTEST_JSON_OUT_DIR` | `undefined` | No |
 
 ## Local Result Storage
+Edit the `docker-compose.yml` to include the environment variable and the volume mapping:
 
-Set `NB_SPEEDTEST_JSON_OUT_DIR` to a writable directory path (e.g. `./json-results`) if you want each run to also persist its JSON output locally alongside the console log; when unset, results are only printed to stdout.
+```yml
+NB_SPEEDTEST_JSON_OUT_DIR: './json-results'
+
+volumes:
+  - ${NB_SPEEDTEST_JSON_OUT_DIR}:/app/json-results
+```
 
 ## Building the Image
 
