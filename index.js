@@ -5,6 +5,7 @@ import path from 'path';
 const url = process.env.NB_SPEEDTEST_URL || 'https://netzbremse.de/speed'
 const acceptedPrivacyPolicy = process.env.NB_SPEEDTEST_ACCEPT_POLICY?.toLowerCase() === "true"
 const testIntervalSec = parseInt(process.env.NB_SPEEDTEST_INTERVAL) || 3600
+const timeoutSec = parseInt(process.env.NB_SPEEDTEST_TIMEOUT) || 900 // 15 minutes default
 const browserHeadless = process.env.NODE_ENV !== 'development'
 const browserUserDataDir = process.env.NB_SPEEDTEST_BROWSER_DATA_DIR || './tmp-browser-data'
 const resultsDir = process.env.NB_SPEEDTEST_JSON_OUT_DIR
@@ -40,7 +41,18 @@ function delay(delayMs) {
 	return new Promise(resolve => setTimeout(() => resolve(), delayMs))
 }
 
+function withTimeout(promise, timeoutMs, operation = 'Operation') {
+	return Promise.race([
+		promise,
+		new Promise((_, reject) =>
+			setTimeout(() => reject(new Error(`${operation} timed out after ${timeoutMs}ms`)), timeoutMs)
+		)
+	])
+}
+
 async function runSpeedtest() {
+	console.log(`[${new Date().toISOString()}] Starting browser launch...`)
+	console.log(`[${new Date().toISOString()}] Launching browser...`)
 	const browser = await puppeteer.launch({
 		headless: browserHeadless,
 		userDataDir: browserUserDataDir,
@@ -54,10 +66,13 @@ async function runSpeedtest() {
 		]
 	});
 	try {
+		console.log(`[${new Date().toISOString()}] Creating new page...`)
 		const page = await browser.newPage();
 		await page.setViewport({ width: 1000, height: 1080 });
 
+		console.log(`[${new Date().toISOString()}] Navigating to ${url}...`)
 		await page.goto(url);
+		console.log(`[${new Date().toISOString()}] Waiting for network idle...`)
 		await page.waitForNetworkIdle();
 
 		if (acceptedPrivacyPolicy) {
@@ -82,23 +97,41 @@ async function runSpeedtest() {
 		
 		const finished = new Promise(async (resolve) => await page.exposeFunction("nbSpeedtestOnFinished", () => resolve()))
 
-		console.log("Starting speedtest", new Date().toISOString())
+			console.log(`[${new Date().toISOString()}] Starting speedtest...`)
 		await page.click("nb-speedtest >>>> #nb_speedtest_start_btn")
+		console.log(`[${new Date().toISOString()}] Speedtest button clicked, waiting for completion...`)
 
 		await finished
+		console.log(`[${new Date().toISOString()}] Speedtest completed successfully`)
 	} finally {
-		await browser.close()
+		console.log(`[${new Date().toISOString()}] Closing browser...`)
+		try {
+			// Add timeout to browser.close() to prevent hanging
+			await withTimeout(browser.close(), 10000, 'Browser close')
+		} catch (closeErr) {
+			console.error(`[${new Date().toISOString()}] Browser close failed:`, closeErr.message)
+			// Force-kill browser process if graceful close fails
+			try {
+				if (browser.process()) {
+					console.log(`[${new Date().toISOString()}] Force-killing browser process...`)
+					browser.process().kill('SIGKILL')
+				}
+			} catch (killErr) {
+				console.error(`[${new Date().toISOString()}] Force-kill failed:`, killErr.message)
+			}
+		}
 	}
 }
 
 while (true) {
 	try {
-		await runSpeedtest()
-		console.log(`Finished`)
+		// Overall timeout for entire speedtest operation
+		await withTimeout(runSpeedtest(), timeoutSec * 1000, 'Speedtest operation')
+		console.log(`[${new Date().toISOString()}] Finished successfully`)
 	} catch (err) {
-		console.error("Error:", err)
+		console.error(`[${new Date().toISOString()}] Error:`, err.message || err)
 	}
 	const restartIn = Math.max(testIntervalSec, 30)
-	console.log(`Restarting in ${testIntervalSec} sec`)
+	console.log(`[${new Date().toISOString()}] Restarting in ${restartIn} sec`)
 	await delay(restartIn * 1000)
 }

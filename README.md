@@ -59,9 +59,12 @@ To run the script reliably in the background create a Systemd service or use as 
 |----------|---------|----------|
 | `NB_SPEEDTEST_ACCEPT_POLICY` | - | **Yes** (set to `"true"`) |
 | `NB_SPEEDTEST_INTERVAL` | `3600` (1 hour) | No |
+| `NB_SPEEDTEST_TIMEOUT` | `900` (15 minutes) | No |
 | `NB_SPEEDTEST_URL` | `https://netzbremse.de/speed` | No |
 | `NB_SPEEDTEST_BROWSER_DATA_DIR` | `./tmp-browser-data` | No |
 | `NB_SPEEDTEST_JSON_OUT_DIR` | `undefined` | No |
+
+**Timeout Configuration:** The `NB_SPEEDTEST_TIMEOUT` variable sets the maximum duration (in seconds) for each speedtest operation. This prevents the script from hanging indefinitely during failures.
 
 ## Local Result Storage
 Edit the `docker-compose.yml` to include the environment variable and the volume mapping:
