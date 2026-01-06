@@ -64,15 +64,17 @@ To run the script reliably in the background create a Systemd service or use as 
 
 ### Troubleshooting
 
-**Installing chromium separately:**
+**Using system-installed Chromium:**
 
-If the chrome browser that is bundled with puppeteer does not work for some reason it is possible to use a separate version of chrome or chromium that can for example be installed through the systems native package manager. 
+If the Chrome browser bundled with Puppeteer doesn't work for some reason, you can use a separate version of Chrome or Chromium installed through your system's native package manager. 
 
 ```bash
 sudo apt install chromium
 ```
 
-It is possible to configure the installation path for the chromium binary using the environment variable `PUPPETEER_EXECUTABLE_PATH` (Note: it might be a different path on your system). By setting `PUPPETEER_SKIP_DOWNLOAD` to `true` it is possible to skip downloading the bundled version of chromium entirely.
+Configure the Chromium binary path using the `PUPPETEER_EXECUTABLE_PATH` environment variable. Set `PUPPETEER_SKIP_DOWNLOAD` to `true` to skip downloading the bundled Chromium version entirely.
+
+Note: The path may be different on your system.
 
 ```bash
 export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
