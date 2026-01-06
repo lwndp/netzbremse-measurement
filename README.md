@@ -31,6 +31,17 @@ docker compose logs -f
 
 Anonymized results are automatically submitted to our data collection service.
 
+Pre-built Docker images are provided for:
+
+- **amd64**
+- **arm64** (including Raspberry Pi 3 and later)
+
+It is also possible to build your own image for different architectures by cloning this repository and running:
+
+```bash
+docker compose -f docker-compose.build.yml build
+```
+
 ## Run using Node.js (without Docker)
 
 Clone this repository:
@@ -50,6 +61,23 @@ npm start
 To run the script reliably in the background create a Systemd service or use as process manager like PM2.
 
 > **Note:** The script is developed and tested on Linux. The instructions can probably be adapted to run the script on other platforms.
+
+### Troubleshooting
+
+**Installing chromium separately:**
+
+If the chrome browser that is bundled with puppeteer does not work for some reason it is possible to use a separate version of chrome or chromium that can for example be installed through the systems native package manager. 
+
+```bash
+sudo apt install chromium
+```
+
+It is possible to configure the installation path for the chromium binary using the environment variable `PUPPETEER_EXECUTABLE_PATH` (Note: it might be a different path on your system). By setting `PUPPETEER_SKIP_DOWNLOAD` to `true` it is possible to skip downloading the bundled version of chromium entirely.
+
+```bash
+export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+npm start
+```
 
 ## Configuration
 
