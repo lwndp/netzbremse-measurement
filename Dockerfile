@@ -21,8 +21,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libu2f-udev \
   libxshmfence1 \
   libglu1-mesa \
+  chromium \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 COPY package*.json ./
 
