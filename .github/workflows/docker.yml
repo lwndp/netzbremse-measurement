@@ -82,7 +82,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}-dashboard
+          # Use repository owner namespace to ensure image is pushed under the correct GHCR owner
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/netzbremse-dashboard
           tags: |
             type=ref,event=branch
             type=ref,event=pr
