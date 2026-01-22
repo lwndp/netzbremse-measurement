@@ -1,0 +1,27 @@
+[project]
+name = "netzbremse-dashboard"
+version = "1.0.0"
+description = "Streamlit dashboard for visualizing Netzbremse speedtest measurements"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit>=1.28.0",
+    "pandas>=2.0.0",
+    "streamlit-autorefresh>=1.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.0",
+    "black>=24.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
