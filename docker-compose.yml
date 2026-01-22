@@ -1,15 +1,40 @@
 services:
   speedtest:
+    build: .
     image: ghcr.io/akvorrat/netzbremse-measurement:latest
     container_name: netzbremse-speedtest
     restart: unless-stopped
-#    environment:
-#      NB_SPEEDTEST_ACCEPT_POLICY: true
-#      NB_SPEEDTEST_JSON_OUT_DIR: './json-results'
+    environment:
+      NB_SPEEDTEST_ACCEPT_POLICY: "true"
+      NB_SPEEDTEST_JSON_OUT_DIR: "/data"
+    volumes:
+      - speedtest-data:/data
     deploy:
       resources:
         limits:
           memory: 1G
-          cpus: '1'
-#    volumes:
-#      - ${NB_SPEEDTEST_JSON_OUT_DIR}:/app/json-results
+          cpus: "1"
+
+  dashboard:
+    build:
+      context: ./dashboard
+    image: ghcr.io/akvorrat/netzbremse-dashboard:latest
+    container_name: netzbremse-dashboard
+    restart: unless-stopped
+    environment:
+      DATA_DIR: "/data"
+      REFRESH_INTERVAL_SECONDS: "3600"
+    volumes:
+      - speedtest-data:/data:ro
+    ports:
+      - "8501:8501"
+    depends_on:
+      - speedtest
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+
+volumes:
+  speedtest-data:

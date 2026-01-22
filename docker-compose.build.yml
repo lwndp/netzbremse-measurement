@@ -2,3 +2,8 @@ services:
   speedtest:
     build: .
     image: ghcr.io/akvorrat/netzbremse-measurement:latest
+
+  speedtest-dashboard:
+    build:
+      context: ./dashboard
+    image: ghcr.io/akvorrat/netzbremse-dashboard:latest
