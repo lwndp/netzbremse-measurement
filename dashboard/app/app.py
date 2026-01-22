@@ -1,0 +1,214 @@
+"""Netzbremse Speedtest Dashboard - Main Application."""
+
+import time
+
+import streamlit as st
+from streamlit_autorefresh import st_autorefresh
+
+from charts import create_combined_chart, create_metric_line_chart
+from components import (
+    render_header,
+    render_latest_summary,
+    render_recent_table,
+)
+from data_loader import (
+    DATA_DIR,
+    METRICS,
+    REFRESH_INTERVAL_SECONDS,
+    aggregate_to_intervals,
+    get_latest_measurements,
+    load_all_data,
+)
+
+# Number of recent measurements to show
+RECENT_COUNT = 5
+
+# Default metrics to display
+DEFAULT_METRICS = ["download", "upload", "latency", "jitter"]
+
+# Page configuration
+st.set_page_config(
+    page_title="Netzbremse Dashboard",
+    page_icon=":hourglass:",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# Custom CSS for brand color buttons
+st.markdown(
+    """
+    <style>
+    .stButton > button {
+        background-color: #e91e63;
+        color: white;
+        border: none;
+    }
+    .stButton > button:hover {
+        background-color: #c2185b;
+        color: white;
+        border: none;
+    }
+    .stDownloadButton > button {
+        background-color: #e91e63;
+        color: white;
+        border: none;
+    }
+    .stDownloadButton > button:hover {
+        background-color: #c2185b;
+        color: white;
+        border: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Auto-refresh every second to update countdown
+st_autorefresh(interval=5000, limit=None, key="auto_refresh")
+
+# Calculate approximate countdown until next data refresh
+time_in_interval = time.time() % REFRESH_INTERVAL_SECONDS
+countdown = int(REFRESH_INTERVAL_SECONDS - time_in_interval)
+
+# Sidebar - simplified without logo
+st.sidebar.title("Settings")
+
+# Main content
+render_header()
+
+# Load data
+with st.spinner("Loading data..."):
+    df = load_all_data()
+
+# Date range selector - First option in sidebar
+if not df.empty:
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Date Range Filter")
+    min_date = df["timestamp"].min().date()
+    max_date = df["timestamp"].max().date()
+
+    date_range = st.sidebar.date_input(
+        "Select date range",
+        value=(min_date, max_date),
+        min_value=min_date,
+        max_value=max_date,
+        help="Filter data by date range",
+    )
+
+    # Apply date filter if range is selected
+    if isinstance(date_range, tuple) and len(date_range) == 2:
+        start_date, end_date = date_range
+        df = df[
+            (df["timestamp"].dt.date >= start_date)
+            & (df["timestamp"].dt.date <= end_date)
+        ]
+        st.sidebar.caption(f"Filtered to {len(df)} measurements")
+
+    # Chart settings
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Chart Settings")
+    aggregate_data = st.sidebar.checkbox(
+        "Group by measurement run",
+        value=False,
+        help="Each run produces 5 data points. Enable to average them into single points. Makes cleaner charts.",
+    )
+
+# Refresh info
+st.sidebar.markdown("---")
+st.sidebar.subheader("Auto-Refresh")
+refresh_note = (
+    f"{REFRESH_INTERVAL_SECONDS // 60} minutes"
+    if REFRESH_INTERVAL_SECONDS >= 60
+    else f"{REFRESH_INTERVAL_SECONDS} seconds"
+)
+
+st.sidebar.caption(
+    f"The dashboard refreshes data from the linked directory automatically every {refresh_note}. You can also manually refresh it any time."
+)
+st.sidebar.info(f"Next automatic refresh in {countdown}s")
+
+if st.sidebar.button("Manual Refresh", width="stretch"):
+    st.cache_data.clear()
+    st.rerun()
+
+# Show data count in sidebar after loading
+if not df.empty:
+    from_date = df["timestamp"].min().strftime("%Y-%m-%d %H:%M")
+    to_date = df["timestamp"].max().strftime("%Y-%m-%d %H:%M")
+
+    # CSV Download button at bottom of sidebar
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Export Data")
+    import io
+
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
+    csv_data = csv_buffer.getvalue()
+
+    st.sidebar.download_button(
+        label="📥 Download as CSV",
+        data=csv_data,
+        file_name="speedtest_data.csv",
+        mime="text/csv",
+        help="Download the raw data as a CSV file",
+        width="stretch",
+    )
+    st.sidebar.caption(f"Loaded {len(df)} measurements\n({from_date} to {to_date})")
+
+if df.empty:
+    st.warning(f"No speedtest data found in `{DATA_DIR}`")
+    st.info(
+        "Make sure speedtest files are being saved to the configured directory. "
+        "Check that the `DATA_DIR` environment variable is set correctly."
+    )
+    st.stop()
+
+# Get latest measurements for summary (raw data, most recent first)
+latest_df = get_latest_measurements(df, RECENT_COUNT)
+
+# Prepare chart data (optionally aggregated)
+chart_df = aggregate_to_intervals(df, interval_minutes=10) if aggregate_data else df
+
+# Summary section
+st.markdown("---")
+render_latest_summary(latest_df)
+
+# Recent measurements table
+st.markdown("---")
+render_recent_table(latest_df, RECENT_COUNT)
+
+# Charts section
+st.markdown("---")
+st.subheader("Performance Over Time")
+
+# Individual charts in tabs
+tabs = st.tabs([METRICS[m]["name"] for m in DEFAULT_METRICS])
+
+for tab, metric in zip(tabs, DEFAULT_METRICS):
+    with tab:
+        chart = create_metric_line_chart(chart_df, metric)
+        st.altair_chart(chart, width="stretch")
+
+# Combined view - Split into separate charts
+st.markdown("---")
+st.subheader("Combined View")
+
+# Separate speed and latency charts
+speed_metrics = [m for m in DEFAULT_METRICS if METRICS[m]["unit"] == "Mbps"]
+latency_metrics = [m for m in DEFAULT_METRICS if METRICS[m]["unit"] == "ms"]
+
+if speed_metrics:
+    st.markdown("### Speed Metrics")
+    from charts import create_speed_chart
+
+    speed_chart = create_speed_chart(chart_df, speed_metrics)
+    if speed_chart:
+        st.altair_chart(speed_chart, width="stretch")
+
+if latency_metrics:
+    st.markdown("### Latency Metrics")
+    from charts import create_latency_chart
+
+    latency_chart = create_latency_chart(chart_df, latency_metrics)
+    if latency_chart:
+        st.altair_chart(latency_chart, width="stretch")
