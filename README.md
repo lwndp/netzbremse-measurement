@@ -137,6 +137,8 @@ The dashboard will be available at `http://localhost:8501`
 
 The dashboard container automatically mounts the same `json-results` directory as the speedtest container via the volume configuration in `docker-compose.yml`. You typically don't need to change `DATA_DIR` unless you're using a custom setup.
 
+> **⚠️ Security Note:**  This is not production-ready. Ensure proper access controls when running this on a public server.
+
 ## Building the Image
 
 ```bash
