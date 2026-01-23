@@ -85,29 +85,26 @@ def create_speed_chart(
 
     zoom_speed = alt.selection_interval(name="zoom_speed", encodings=["x"])
 
-    speed_chart = (
-        alt.Chart(speed_df)
-        .mark_line(strokeWidth=2)
-        .encode(
-            x=alt.X(
-                "timestamp:T",
-                title="Time",
-                axis=alt.Axis(format="%H:%M", labelAngle=-45, tickCount="hour"),
-                scale=alt.Scale(domain=zoom_speed),
-            ),
-            y=alt.Y("value:Q", title="Speed (Mbps)", scale=alt.Scale(zero=True)),
-            color=alt.Color("metric:N", title="Metric"),
-            tooltip=[
-                alt.Tooltip("timestamp:T", title="Time", format="%Y-%m-%d %H:%M"),
-                alt.Tooltip("metric:N", title="Metric"),
-                alt.Tooltip("value:Q", title="Value", format=".2f"),
-            ],
-        )
-        .properties(height=height)
-        .add_params(zoom_speed)
+    base = alt.Chart(speed_df).encode(
+        x=alt.X(
+            "timestamp:T",
+            title="Time",
+            axis=alt.Axis(format="%H:%M", labelAngle=-45, tickCount="hour"),
+            scale=alt.Scale(domain=zoom_speed),
+        ),
+        y=alt.Y("value:Q", title="Speed (Mbps)", scale=alt.Scale(zero=True)),
+        color=alt.Color("metric:N", legend=alt.Legend(title="Metric", orient="top")),
+        tooltip=[
+            alt.Tooltip("timestamp:T", title="Time", format="%Y-%m-%d %H:%M"),
+            alt.Tooltip("metric:N", title="Metric"),
+            alt.Tooltip("value:Q", title="Value", format=".2f"),
+        ],
     )
 
-    return speed_chart
+    line = base.mark_line(strokeWidth=2)
+    points = base.mark_circle(size=40)
+
+    return (line + points).properties(height=height).add_params(zoom_speed)
 
 
 def create_latency_chart(
@@ -131,29 +128,26 @@ def create_latency_chart(
 
     zoom_latency = alt.selection_interval(name="zoom_latency", encodings=["x"])
 
-    latency_chart = (
-        alt.Chart(latency_df)
-        .mark_line(strokeWidth=2)
-        .encode(
-            x=alt.X(
-                "timestamp:T",
-                title="Time",
-                axis=alt.Axis(format="%H:%M", labelAngle=-45, tickCount="hour"),
-                scale=alt.Scale(domain=zoom_latency),
-            ),
-            y=alt.Y("value:Q", title="Latency (ms)", scale=alt.Scale(zero=True)),
-            color=alt.Color("metric:N", title="Metric"),
-            tooltip=[
-                alt.Tooltip("timestamp:T", title="Time", format="%Y-%m-%d %H:%M"),
-                alt.Tooltip("metric:N", title="Metric"),
-                alt.Tooltip("value:Q", title="Value", format=".2f"),
-            ],
-        )
-        .properties(height=height)
-        .add_params(zoom_latency)
+    base = alt.Chart(latency_df).encode(
+        x=alt.X(
+            "timestamp:T",
+            title="Time",
+            axis=alt.Axis(format="%H:%M", labelAngle=-45, tickCount="hour"),
+            scale=alt.Scale(domain=zoom_latency),
+        ),
+        y=alt.Y("value:Q", title="Latency (ms)", scale=alt.Scale(zero=True)),
+        color=alt.Color("metric:N", legend=alt.Legend(title="Metric", orient="top")),
+        tooltip=[
+            alt.Tooltip("timestamp:T", title="Time", format="%Y-%m-%d %H:%M"),
+            alt.Tooltip("metric:N", title="Metric"),
+            alt.Tooltip("value:Q", title="Value", format=".2f"),
+        ],
     )
 
-    return latency_chart
+    line = base.mark_line(strokeWidth=2)
+    points = base.mark_circle(size=40)
+
+    return (line + points).properties(height=height).add_params(zoom_latency)
 
 
 def create_combined_chart(
