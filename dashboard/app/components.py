@@ -62,32 +62,50 @@ def render_latest_summary(df: pd.DataFrame):
         "Values are averaged over the last complete test run, which typically consists of 5 individual measurements."
     )
 
+    # Show last 5 measurements in an accordion
+    with st.expander("View individual measurements from this test run"):
+        last_5_df = df.iloc[-5:].copy()
+        last_5_df["timestamp"] = last_5_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
 
-def render_recent_table(df: pd.DataFrame, count: int = 5):
-    """Render a table of the most recent measurements."""
-    if df.empty:
-        return
+        # Select all available columns
+        all_columns = [
+            "timestamp",
+            "sessionID",
+            "endpoint",
+            "download",
+            "upload",
+            "latency",
+            "jitter",
+            "downLoadedLatency",
+            "downLoadedJitter",
+            "upLoadedLatency",
+            "upLoadedJitter",
+        ]
+        available_cols = [col for col in all_columns if col in last_5_df.columns]
+        display_df = last_5_df[available_cols].copy()
 
-    st.subheader(f"Last {min(count, len(df))} Measurements")
+        column_rename = {
+            "timestamp": "Time",
+            "sessionID": "Session ID",
+            "endpoint": "Endpoint",
+            "download": "Download (Mbps)",
+            "upload": "Upload (Mbps)",
+            "latency": "Latency (ms)",
+            "jitter": "Jitter (ms)",
+            "downLoadedLatency": "Loaded Latency Down (ms)",
+            "downLoadedJitter": "Loaded Jitter Down (ms)",
+            "upLoadedLatency": "Loaded Latency Up (ms)",
+            "upLoadedJitter": "Loaded Jitter Up (ms)",
+        }
+        display_df = display_df.rename(columns=column_rename)
 
-    display_df = df.head(count).copy()
-    display_df["timestamp"] = display_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
+        # Format numeric columns
+        numeric_cols = [
+            col
+            for col in display_df.columns
+            if col not in ["Time", "Session ID", "Endpoint"]
+        ]
+        for col in numeric_cols:
+            display_df[col] = display_df[col].apply(lambda x: f"{x:.2f}")
 
-    # Select and rename columns for display
-    columns_to_show = ["timestamp", "download", "upload", "latency", "jitter"]
-    display_df = display_df[columns_to_show]
-
-    column_rename = {
-        "timestamp": "Time",
-        "download": "Download (Mbps)",
-        "upload": "Upload (Mbps)",
-        "latency": "Latency (ms)",
-        "jitter": "Jitter (ms)",
-    }
-    display_df = display_df.rename(columns=column_rename)
-
-    # Format numeric columns
-    for col in ["Download (Mbps)", "Upload (Mbps)", "Latency (ms)", "Jitter (ms)"]:
-        display_df[col] = display_df[col].apply(lambda x: f"{x:.2f}")
-
-    st.dataframe(display_df, width="stretch", hide_index=True)
+        st.dataframe(display_df, width="stretch", hide_index=True)

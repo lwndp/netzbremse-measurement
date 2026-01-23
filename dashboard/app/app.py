@@ -9,7 +9,6 @@ from charts import create_combined_chart, create_metric_line_chart
 from components import (
     render_header,
     render_latest_summary,
-    render_recent_table,
 )
 from data_loader import (
     DATA_DIR,
@@ -172,10 +171,6 @@ chart_df = aggregate_to_intervals(df, interval_minutes=10) if aggregate_data els
 # Summary section
 st.markdown("---")
 render_latest_summary(latest_df)
-
-# Recent measurements table
-st.markdown("---")
-render_recent_table(latest_df, RECENT_COUNT)
 
 # Charts section
 st.markdown("---")
