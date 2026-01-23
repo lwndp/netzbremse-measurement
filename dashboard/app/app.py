@@ -1,5 +1,6 @@
 """Netzbremse Speedtest Dashboard - Main Application."""
 
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import streamlit as st
@@ -94,6 +95,22 @@ def convert_timezone(df_input):
 
 # Convert to Europe/Berlin timezone for all data
 df = convert_timezone(df_utc)
+
+# Check for stale data (no new measurements in last 2 hours)
+if not df.empty:
+    latest_measurement = df["timestamp"].max()
+    now = datetime.now(DISPLAY_TIMEZONE)
+    time_since_last = now - latest_measurement
+    if time_since_last > timedelta(hours=2):
+        total_hours = time_since_last.total_seconds() / 3600
+        if total_hours >= 48:
+            time_ago_str = f"{total_hours / 24:.0f} days"
+        else:
+            time_ago_str = f"{total_hours:.1f} hours"
+        st.warning(
+            f"⚠️ No new data in the last {time_ago_str}. "
+            f"Last measurement: {latest_measurement.strftime('%Y-%m-%d %H:%M')}"
+        )
 
 # Date range selector - First option in sidebar
 if not df.empty:
