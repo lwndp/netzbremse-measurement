@@ -104,11 +104,11 @@ if not df.empty:
     if time_since_last > timedelta(hours=2):
         total_hours = time_since_last.total_seconds() / 3600
         if total_hours >= 48:
-            time_ago_str = f"{total_hours / 24:.0f} days"
+            time_ago_str = f"{round(total_hours / 24):.0f} days"
         else:
-            time_ago_str = f"{total_hours:.1f} hours"
+            time_ago_str = f"{round(total_hours, 1):.0f} hours"
         st.warning(
-            f"⚠️ No new data in the last {time_ago_str}. "
+            f"⚠️ No new data in the last ~{time_ago_str}. "
             f"Last measurement: {latest_measurement.strftime('%Y-%m-%d %H:%M')}"
         )
 
