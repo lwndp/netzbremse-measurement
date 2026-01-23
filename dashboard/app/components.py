@@ -3,17 +3,10 @@
 import pandas as pd
 import streamlit as st
 
-# Netzbremse logo URL
-LOGO_URL = "https://netzbremse.de/img/hourglass_hu15528090548520832702.png"
-
 
 def render_header():
-    """Render the dashboard header with logo."""
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        st.image(LOGO_URL, width=80)
-    with col2:
-        st.title("Netzbremse Speedtest Dashboard")
+    """Render the dashboard header."""
+    st.markdown("# Netzbremse Speedtest Dashboard")
 
 
 def render_latest_summary(df: pd.DataFrame):

@@ -67,7 +67,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Sidebar - simplified without logo
+# Sidebar - Settings
 st.sidebar.title("Settings")
 
 # Fixed timezone for all data
@@ -232,6 +232,5 @@ if latency_metrics:
     if latency_chart:
         st.altair_chart(latency_chart, width="stretch")
 
-# Footer with timezone information
 st.markdown("---")
 st.caption("All timestamps are displayed in Europe/Berlin timezone (CET/CEST).")
