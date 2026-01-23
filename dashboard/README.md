@@ -22,11 +22,16 @@ Install dependencies:
 uv sync
 ```
 
+Install pre-commit hooks (runs code quality checks on every commit):
+```bash
+pre-commit install
+```
+
 Set environment variables:
 ```bash
 export DATA_DIR="../json-results"
 export REFRESH_INTERVAL_SECONDS="60"
-````
+```
 **Note:** DATA_DIR should contain the raw output of the measurement app, i.e. json files.
 
 Run the app:
@@ -49,6 +54,27 @@ app/
 
 - `DATA_DIR`: Path to directory with speedtest JSON files (default: `/data`)
 - `REFRESH_INTERVAL_SECONDS`: Data cache TTL (default: `3600`)
+
+## Code Quality
+
+This project uses **pre-commit hooks** to ensure code quality:
+
+- **Black**: Automatic code formatting
+- **Ruff**: Linting and code quality checks
+
+The hooks run automatically on every commit. To manually check before committing:
+
+```bash
+uv run ruff check app/
+uv run black --check app/
+```
+
+To auto-fix issues:
+
+```bash
+uv run ruff check --fix app/
+uv run black app/
+```
 
 ## Key Features
 
