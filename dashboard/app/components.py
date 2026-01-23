@@ -27,7 +27,8 @@ def render_latest_summary(df: pd.DataFrame):
     # Format timestamp with timezone name from the timestamp itself
     tz_name = latest_timestamp.strftime("%Z") if latest_timestamp.tzinfo else ""
     st.caption(
-        f"Recorded at: {latest_timestamp.strftime('%Y-%m-%d %H:%M:%S')} {tz_name} (last of the set)"
+        f"Recorded at: {latest_timestamp.strftime('%Y-%m-%d %H:%M:%S')} {tz_name}"
+        f" (last of the set)"
     )
 
     col1, col2, col3, col4 = st.columns(4)
@@ -54,7 +55,8 @@ def render_latest_summary(df: pd.DataFrame):
         )
 
     st.caption(
-        "Values are averaged over the last complete test run, which typically consists of 5 individual measurements."
+        "Values are averaged over the last complete test run, which typically"
+        " consists of 5 individual measurements."
     )
 
     # Show last 5 measurements in an accordion

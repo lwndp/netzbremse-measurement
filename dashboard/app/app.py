@@ -3,7 +3,6 @@
 from zoneinfo import ZoneInfo
 
 import streamlit as st
-
 from charts import create_metric_line_chart
 from components import (
     render_header,
@@ -126,7 +125,8 @@ if not df.empty:
     aggregate_data = st.sidebar.checkbox(
         "Group by measurement run",
         value=True,
-        help="Each run produces 5 data points. Enable to average them into single points. Makes cleaner charts.",
+        help="Each run produces 5 data points. Enable to average them into single"
+        " points. Makes cleaner charts.",
     )
 
 # Refresh info
@@ -139,7 +139,8 @@ refresh_note = (
 )
 
 st.sidebar.caption(
-    f"The dashboard refreshes data from the linked directory automatically every {refresh_note}. You can also manually refresh it any time."
+    f"The dashboard refreshes data from the linked directory automatically every"
+    f" {refresh_note}. You can also manually refresh it any time."
 )
 
 if st.sidebar.button("Manual Refresh", width="stretch"):

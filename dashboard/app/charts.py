@@ -4,7 +4,6 @@ from typing import List, Optional
 
 import altair as alt
 import pandas as pd
-
 from data_loader import METRICS
 
 # Brand color matching netzbremse.de
