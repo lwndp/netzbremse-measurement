@@ -1,5 +1,6 @@
 """Netzbremse Speedtest Dashboard - Main Application."""
 
+import logging
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -18,6 +19,18 @@ from data_loader import (
     load_all_data,
 )
 
+# Configure app logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
 # Number of recent measurements to show
 RECENT_COUNT = 5
 
@@ -31,6 +44,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+logger.info("Dashboard page render started")
 
 # Custom CSS for brand color buttons and reduced spacing
 st.markdown(
@@ -107,6 +122,11 @@ if not df.empty:
             time_ago_str = f"{round(total_hours / 24):.0f} days"
         else:
             time_ago_str = f"{round(total_hours, 1):.0f} hours"
+        logger.warning(
+            "Stale data detected: last measurement was %s ago (at %s)",
+            time_ago_str,
+            latest_measurement.strftime("%Y-%m-%d %H:%M"),
+        )
         st.warning(
             f"⚠️ No new data in the last ~{time_ago_str}. "
             f"Last measurement: {latest_measurement.strftime('%Y-%m-%d %H:%M')}"
@@ -130,10 +150,18 @@ if not df.empty:
     # Apply date filter if range is selected
     if isinstance(date_range, tuple) and len(date_range) == 2:
         start_date, end_date = date_range
+        original_count = len(df)
         df = df[
             (df["timestamp"].dt.date >= start_date)
             & (df["timestamp"].dt.date <= end_date)
         ]
+        logger.debug(
+            "Date filter applied: %s to %s (%d -> %d records)",
+            start_date,
+            end_date,
+            original_count,
+            len(df),
+        )
         st.sidebar.caption(f"Filtered to {len(df)} measurements")
 
     # Chart settings
@@ -161,6 +189,7 @@ st.sidebar.caption(
 )
 
 if st.sidebar.button("Manual Refresh", width="stretch"):
+    logger.info("Manual refresh triggered by user")
     st.cache_data.clear()
     st.rerun()
 
@@ -197,6 +226,7 @@ if not df.empty:
     st.sidebar.caption(f"Loaded {len(df)} measurements\n({from_date} to {to_date})")
 
 if df.empty:
+    logger.warning("No speedtest data found in DATA_DIR=%s", DATA_DIR)
     st.warning(f"No speedtest data found in `{DATA_DIR}`")
     st.info(
         "Make sure speedtest files are being saved to the configured directory. "

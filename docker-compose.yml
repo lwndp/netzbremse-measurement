@@ -24,6 +24,7 @@ services:
     environment:
       DATA_DIR: "/data"
       REFRESH_INTERVAL_SECONDS: "3600"
+      LOG_LEVEL: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
     volumes:
       - speedtest-data:/data:ro
     ports:
