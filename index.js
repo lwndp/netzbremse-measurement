@@ -134,6 +134,11 @@ while (errorCount < retryCount) {
 		console.log(`[${new Date().toISOString()}] Finished successfully`)
 		errorCount = 0
 
+		if (testIntervalSec === 0) {
+			console.log(`[${new Date().toISOString()}] Oneshot mode (interval=0). Exiting.`)
+			process.exit(0)
+		}
+
 		const restartIn = Math.max(retryIntervalSec, 30)
 		console.log(`[${new Date().toISOString()}] Restarting in ${restartIn} sec`)
 		await delay(Math.max(testIntervalSec, 30) * 1000)

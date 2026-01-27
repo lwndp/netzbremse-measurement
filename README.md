@@ -101,6 +101,8 @@ npm start
 - `NB_SPEEDTEST_RETRY_INTERVAL`: Delay between retries after failures (default: 15 minutes)
 - After reaching the maximum retry count, the script will exit with code 1
 
+**Oneshot Mode:** Set `NB_SPEEDTEST_INTERVAL=0` to run the speedtest once and exit (exit code 0 on success).
+
 **Important:** When running in Docker, use restart policies like `restart: unless-stopped` in docker-compose.yml, or use a service manager like systemd to automatically restart the process after it exits due to consecutive failures.
 
 ## Local Result Storage
