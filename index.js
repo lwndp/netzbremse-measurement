@@ -4,7 +4,8 @@ import path from 'path';
 
 const url = process.env.NB_SPEEDTEST_URL || 'https://netzbremse.de/speed'
 const acceptedPrivacyPolicy = process.env.NB_SPEEDTEST_ACCEPT_POLICY?.toLowerCase() === "true"
-const testIntervalSec = parseInt(process.env.NB_SPEEDTEST_INTERVAL) || 3600
+const parsedInterval = parseInt(process.env.NB_SPEEDTEST_INTERVAL)
+const testIntervalSec = isNaN(parsedInterval) ? 3600 : parsedInterval
 const timeoutSec = parseInt(process.env.NB_SPEEDTEST_TIMEOUT) || 3600
 const retryIntervalSec = parseInt(process.env.NB_SPEEDTEST_RETRY_INTERVAL) || 900
 const retryCount = parseInt(process.env.NB_SPEEDTEST_RETRY_COUNT) || 3
@@ -84,8 +85,8 @@ async function runSpeedtest() {
 		await page.exposeFunction("nbSpeedtestOnResult", async (result) => {
 			const jsonData = JSON.stringify(result, null, 2);
 			console.log(jsonData);
-			
-			if(resultsDir) {
+
+			if (resultsDir) {
 				try {
 					const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 					await fs.mkdir(resultsDir, { recursive: true });
@@ -96,10 +97,10 @@ async function runSpeedtest() {
 				}
 			}
 		})
-		
+
 		const finished = new Promise(async (resolve) => await page.exposeFunction("nbSpeedtestOnFinished", () => resolve()))
 
-			console.log(`[${new Date().toISOString()}] Starting speedtest...`)
+		console.log(`[${new Date().toISOString()}] Starting speedtest...`)
 		await page.click("nb-speedtest >>>> #nb_speedtest_start_btn")
 		console.log(`[${new Date().toISOString()}] Speedtest button clicked, waiting for completion...`)
 
@@ -139,9 +140,9 @@ while (errorCount < retryCount) {
 			process.exit(0)
 		}
 
-		const restartIn = Math.max(retryIntervalSec, 30)
+		const restartIn = Math.max(testIntervalSec, 30)
 		console.log(`[${new Date().toISOString()}] Restarting in ${restartIn} sec`)
-		await delay(Math.max(testIntervalSec, 30) * 1000)
+		await delay(restartIn * 1000)
 	} catch (err) {
 		errorCount++
 		console.error(`[${new Date().toISOString()}] Error (${errorCount}/${retryCount}):`, err.message || err)
@@ -149,7 +150,7 @@ while (errorCount < retryCount) {
 		if (errorCount < retryCount) {
 			const restartIn = Math.max(retryIntervalSec, 30)
 			console.log(`[${new Date().toISOString()}] Restarting in ${restartIn} sec`)
-			await delay(Math.max(retryIntervalSec, 30) * 1000)
+			await delay(restartIn * 1000)
 		}
 	}
 }
